@@ -1,0 +1,37 @@
+<div class="container">
+  <h2>Todos los proyectos</h2>
+  <div class="contains">
+    <button type="button" class="btn btn-info"><i class="fa fa-plus" aria-hidden="true"></i> Crear Proyecto</button>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Proyecto</th>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let project of ProjectList; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ project.name }}</td>
+        <td>{{ project.description }}</td>
+        <td><button type="button" class="btn btn-outline-info" style="margin-right
+          :1rem"><i class="fa fa-eye" aria-hidden="true"></i> Ver</button>
+          <button type="button" class="btn btn-outline-danger"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</button>
+        </td>
+      </tr>
+      <!-- <tr>
+        <td>Mary</td>
+        <td>Moe</td>
+        <td>mary@example.com</td>
+      </tr> -->
+      <!-- <tr>
+        <td>July</td>
+        <td>Dooley</td>
+        <td>july@example.com</td>
+      </tr> -->
+    </tbody>
+  </table>
+</div>
