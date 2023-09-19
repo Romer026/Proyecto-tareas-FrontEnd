@@ -1,0 +1,86 @@
+<div class="container" *ngIf="taskList && taskList.length > 0">
+  <!-- Mostrar el objeto 'project' una sola vez -->
+  <h2>Proyecto : {{ taskList[0].project.name }}</h2>
+  <p>{{ taskList[0].project.description }}</p>
+
+  <h2>Tareas</h2>
+  <div class="contains">
+    <!-- <p-button (click)="showDialog()" icon="pi pi-external-link" label="Show"></p-button> -->
+    <button type="button" class="btn btn-info"  (click)="showDialog()" ><i class="fa fa-plus"
+        aria-hidden="true"></i> Crear Tarea</button>
+  </div>
+  <p-divider></p-divider>
+  <p-progressBar mode="indeterminate" *ngIf="barraCarga == true" [style]="{ height: '6px' }"></p-progressBar>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Descripción</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let task of taskList">
+        <td>{{ task.title }}</td>
+        <td>{{ task.description }}</td>
+        <td>{{ task.status }}</td>
+        <td><button type="button" class="btn btn-outline-warning" style="margin-right
+                :1rem" (click)="getbyidtask(task.taskid)"><i class="fa fa-pencil" aria-hidden="true"></i> Actualizar</button>
+          <button type="button" class="btn btn-outline-danger" (click)="deleteTaskbyId(task.taskid)"><i
+              class="fa fa-trash" aria-hidden="true"></i> Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<!-- Modal Task -->
+<p-dialog header="{{ isEditMode ? 'Editar Tarea' : 'Crear tarea' }}" [(visible)]="visible"
+[style]="{width: '50vw', 'height': '60vw'}">
+  <ng-template pTemplate="body">
+    <div class="p-grid p-fluid">
+      <div class="p-col-12 p-md-12">
+        <div class="p-field p-col-12 p-mt-5" style="margin: 1.5rem;">
+          <span class="p-float-label">
+            <input id="float-input" type="text" pInputText required [(ngModel)]="task.title" class="width: p-col-12" />
+            <label for="float-input">Title</label>
+          </span>
+        </div>
+        <div class="p-field p-col-12 p-mt-2" style="margin: 1.5rem;">
+          <span class="p-float-label">
+            <input id="float-input" type="text" pInputText required [(ngModel)]="task.description"
+              class="width: p-col-12" />
+            <label for="float-input">Description</label>
+          </span>
+        </div>
+        <div class="p-field p-col-12 p-mt-2" style="margin: 1.5rem;">
+          <label for="status">Estado</label>
+          <p-dropdown [options]="taskStatusOptions" [(ngModel)]="task.status" [style]="{'width':'100%'}"
+            placeholder="Selecciona un estado"></p-dropdown>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <form (ngSubmit)="onSubmitask()">
+      <div style="text-align: right">
+        <p-button icon="pi pi-check" type="submit" label="{{ isEditMode ? 'Actualizar' : 'Guardar' }}"
+          (click)="isEditMode ? updateTask() : createTask()"
+          styleClass="p-button-outlined p-button-success "></p-button>
+
+      </div>
+    </form>
+  </ng-template>
+
+</p-dialog>
+<p-confirmDialog #cd [style]="{ width: '50vw' }" [baseZIndex]="10000" rejectButtonStyleClass="p-button-text">
+  <ng-template pTemplate="footer">
+    <button pButton pRipple type="button" label="No" icon="pi pi-times" (click)="cd.reject()"
+      class="p-button-raised p-button-danger p-button-text"></button>
+
+    <button pButton pRipple type="button" label="Si" icon="pi pi-check" (click)="cd.accept()"
+      class="p-button-raised p-button-success p-button-text"></button>
+  </ng-template>
+</p-confirmDialog>
+
+<p-toast></p-toast>
+

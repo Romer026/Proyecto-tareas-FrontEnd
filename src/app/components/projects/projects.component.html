@@ -1,8 +1,15 @@
 <div class="container">
   <h2>Todos los proyectos</h2>
   <div class="contains">
-    <button type="button" class="btn btn-info"><i class="fa fa-plus" aria-hidden="true"></i> Crear Proyecto</button>
+    <button type="button" class="btn btn-info" style="margin-right
+    :1rem" data-toggle="modal"(click)="showDialog()" ><i class="fa fa-plus" aria-hidden="true"  ></i> Crear Proyecto</button>
+    <button type="button" class="btn btn-info" (click)="showDialogTask()"><i class="fa fa-plus" aria-hidden="true"></i> Asignar Tarea a Proyecto</button>
   </div>
+  <div class="contain">
+    <input pInputText [(ngModel)]="filtroNombre" (input)="filtrarProyectosPorNombre(filtroNombre)" placeholder="Buscar por nombre">
+  </div>
+<p-divider></p-divider>
+  <p-progressBar mode="indeterminate" *ngIf="barraCarga == true" [style]="{ height: '6px' }"></p-progressBar>
   <table class="table">
     <thead>
       <tr>
@@ -15,23 +22,145 @@
     <tbody>
       <tr *ngFor="let project of ProjectList; let i = index">
         <td>{{ i + 1 }}</td>
+        <!-- <td>{{project.projectid}}</td> -->
         <td>{{ project.name }}</td>
         <td>{{ project.description }}</td>
         <td><button type="button" class="btn btn-outline-info" style="margin-right
-          :1rem"><i class="fa fa-eye" aria-hidden="true"></i> Ver</button>
-          <button type="button" class="btn btn-outline-danger"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</button>
+          :1rem" (click)="getTasklistFromidProject(project.projectid)"><i class="fa fa-eye" aria-hidden="true" ></i> Detalles</button>
+          <button type="button" class="btn btn-outline-warning" style="margin-right
+          :1rem" (click)="getProjectById(project.projectid)"><i class="fa fa-pencil" aria-hidden="true"></i> Actualizar</button>
+          <button type="button" class="btn btn-outline-danger" (click)="deleteProject(project.projectid)"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</button>
         </td>
       </tr>
-      <!-- <tr>
-        <td>Mary</td>
-        <td>Moe</td>
-        <td>mary@example.com</td>
-      </tr> -->
-      <!-- <tr>
-        <td>July</td>
-        <td>Dooley</td>
-        <td>july@example.com</td>
-      </tr> -->
     </tbody>
   </table>
 </div>
+
+<!-- Modal Project -->
+<p-dialog header="{{ isEditMode ? 'Editar Proyecto' : 'Crear Proyecto' }}" [(visible)]="visible" [style]="{width: '50vw'}">
+  <ng-template pTemplate="body">
+    <div class="p-grid p-fluid">
+        <div class="p-col-12 p-md-12">
+            <div class="p-field p-col-12 p-mt-5" style="margin: 1.5rem;">
+                <span class="p-float-label">
+                    <input
+                        id="float-input"
+                        type="text"
+                        pInputText
+                        required
+                        [(ngModel)]="project.name"
+                        class="width: p-col-12"
+                    />
+                    <label for="float-input">Name</label>
+                </span>
+            </div>
+            <div class="p-field p-col-12 p-mt-2" style="margin: 1.5rem;">
+              <span class="p-float-label">
+                <input
+                    id="float-input"
+                    type="text"
+                    pInputText
+                    required
+                    [(ngModel)]="project.description"
+                    class="width: p-col-12"
+                />
+                <label for="float-input">Description</label>
+            </span>
+            </div>
+        </div>
+    </div>
+</ng-template>
+<ng-template pTemplate="footer">
+    <form (ngSubmit)="onSubmit()">
+        <div style="text-align: right">
+          <p-button
+          icon="pi pi-check"
+          type="submit"
+          label="{{ isEditMode ? 'Actualizar' : 'Guardar' }}"
+          (click)="isEditMode ? updateProject() : createProject()"
+          styleClass="p-button-outlined p-button-success "
+        ></p-button>
+            
+        </div>
+    </form>
+</ng-template>
+
+</p-dialog>
+<!-- Modal task -->
+<p-dialog header="{{  'Crear Asignacion' }}" [(visible)]="visibletask"
+[style]="{width: '50vw', 'height': '60vw'}">
+  <ng-template pTemplate="body">
+    <div class="p-grid p-fluid">
+      <div class="p-col-12 p-md-12">
+        <div class="p-field p-col-12 p-mt-2" style="margin: 1.5rem;">
+          <label for="project">Proyecto</label>
+          <p-dropdown [options]="ProjectList" [(ngModel)]="selectedProjectId" [style]="{'width':'100%'}"
+            placeholder="Selecciona un proyecto" optionLabel="name"></p-dropdown>
+        </div>
+        <p-divider></p-divider>
+        <h2>Registrar tarea</h2>
+        <div class="p-field p-col-12 p-mt-5" style="margin: 1.5rem;">
+          <span class="p-float-label">
+            <input id="float-input" type="text" pInputText required [(ngModel)]="task.title" class="width: p-col-12" />
+            <label for="float-input">Title</label>
+          </span>
+        </div>
+        <div class="p-field p-col-12 p-mt-2" style="margin: 1.5rem;">
+          <span class="p-float-label">
+            <input id="float-input" type="text" pInputText required [(ngModel)]="task.description"
+              class="width: p-col-12" />
+            <label for="float-input">Description</label>
+          </span>
+        </div>
+        <div class="p-field p-col-12 p-mt-2" style="margin: 1.5rem;">
+          <label for="status">Estado</label>
+          <p-dropdown [options]="taskStatusOptions" [(ngModel)]="task.status" [style]="{'width':'100%'}"
+            placeholder="Selecciona un estado"></p-dropdown>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <form (ngSubmit)="onSubmitask()">
+      <div style="text-align: right">
+        <p-button icon="pi pi-check" type="submit" label="{{'Guardar'}}"
+          (click)="createTask()"
+          styleClass="p-button-outlined p-button-success "></p-button>
+
+      </div>
+    </form>
+  </ng-template>
+
+</p-dialog>
+
+
+<p-confirmDialog
+#cd
+[style]="{ width: '50vw' }"
+[baseZIndex]="10000"
+rejectButtonStyleClass="p-button-text"
+>
+<ng-template pTemplate="footer">
+    <button
+        pButton
+        pRipple
+        type="button"
+        label="No"
+        icon="pi pi-times"
+        (click)="cd.reject()"
+        class="p-button-raised p-button-danger p-button-text"
+    ></button>
+
+    <button
+        pButton
+        pRipple
+        type="button"
+        label="Si"
+        icon="pi pi-check"
+        (click)="cd.accept()"
+        class="p-button-raised p-button-success p-button-text"
+    ></button>
+</ng-template>
+</p-confirmDialog>
+
+<p-toast></p-toast>
